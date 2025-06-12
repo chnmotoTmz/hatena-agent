@@ -1,0 +1,17 @@
+[
+  {
+    "prompt": "Professional blog header image about Python programming",
+    "url": "https://mock-image-1.bing.com/generated.jpg",
+    "local_path": "./test_output/images/generated_1.jpg"
+  },
+  {
+    "prompt": "Clean illustration of coding best practices",
+    "url": "https://mock-image-2.bing.com/generated.jpg",
+    "local_path": "./test_output/images/generated_2.jpg"
+  },
+  {
+    "prompt": "Modern tech blog featured image",
+    "url": "https://mock-image-3.bing.com/generated.jpg",
+    "local_path": "./test_output/images/generated_3.jpg"
+  }
+]

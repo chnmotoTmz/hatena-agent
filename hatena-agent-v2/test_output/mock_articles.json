@@ -1,0 +1,77 @@
+[
+  {
+    "title": "テスト記事 1: プログラミングのベストプラクティス",
+    "url": "https://example.hatenablog.com/entry/2023/01/test-article-1",
+    "date": "2025-06-12T21:28:26.030506",
+    "categories": [
+      "プログラミング",
+      "Python",
+      "テスト"
+    ],
+    "summary": "この記事では、プログラミングにおける重要なポイント1について解説します。",
+    "full_content": "\n# テスト記事 1の内容\n\nプログラミングは楽しいですね。特にPythonは初心者にも優しい言語です。\n\n## セクション1: 基本概念\nPythonの基本的な概念について説明します。\n変数、関数、クラスなどの重要な要素を学びましょう。\n\n## セクション2: 実践的なコード\n```python\ndef hello_world():\n    print(\"Hello, World!\")\n```\n\n## セクション3: 応用編\nより高度な技術について解説します。\nデコレータやジェネレータなどの概念も重要です。\n\n楽天で購入できる参考書: https://hb.afl.rakuten.co.jp/test-book-1\n",
+    "word_count": 150,
+    "images": [
+      {
+        "url": "/images/test-1.jpg",
+        "alt": "テスト画像1"
+      }
+    ],
+    "links": [
+      {
+        "url": "https://example.com/ref-1",
+        "text": "参考リンク1"
+      }
+    ]
+  },
+  {
+    "title": "テスト記事 2: プログラミングのベストプラクティス",
+    "url": "https://example.hatenablog.com/entry/2023/02/test-article-2",
+    "date": "2025-05-13T21:28:26.030515",
+    "categories": [
+      "プログラミング",
+      "Python",
+      "テスト"
+    ],
+    "summary": "この記事では、プログラミングにおける重要なポイント2について解説します。",
+    "full_content": "\n# テスト記事 2の内容\n\nプログラミングは楽しいですね。特にPythonは初心者にも優しい言語です。\n\n## セクション1: 基本概念\nPythonの基本的な概念について説明します。\n変数、関数、クラスなどの重要な要素を学びましょう。\n\n## セクション2: 実践的なコード\n```python\ndef hello_world():\n    print(\"Hello, World!\")\n```\n\n## セクション3: 応用編\nより高度な技術について解説します。\nデコレータやジェネレータなどの概念も重要です。\n\n楽天で購入できる参考書: https://hb.afl.rakuten.co.jp/test-book-2\n",
+    "word_count": 200,
+    "images": [
+      {
+        "url": "/images/test-2.jpg",
+        "alt": "テスト画像2"
+      }
+    ],
+    "links": [
+      {
+        "url": "https://example.com/ref-2",
+        "text": "参考リンク2"
+      }
+    ]
+  },
+  {
+    "title": "テスト記事 3: プログラミングのベストプラクティス",
+    "url": "https://example.hatenablog.com/entry/2023/03/test-article-3",
+    "date": "2025-04-13T21:28:26.030522",
+    "categories": [
+      "プログラミング",
+      "Python",
+      "テスト"
+    ],
+    "summary": "この記事では、プログラミングにおける重要なポイント3について解説します。",
+    "full_content": "\n# テスト記事 3の内容\n\nプログラミングは楽しいですね。特にPythonは初心者にも優しい言語です。\n\n## セクション1: 基本概念\nPythonの基本的な概念について説明します。\n変数、関数、クラスなどの重要な要素を学びましょう。\n\n## セクション2: 実践的なコード\n```python\ndef hello_world():\n    print(\"Hello, World!\")\n```\n\n## セクション3: 応用編\nより高度な技術について解説します。\nデコレータやジェネレータなどの概念も重要です。\n\n楽天で購入できる参考書: https://hb.afl.rakuten.co.jp/test-book-3\n",
+    "word_count": 250,
+    "images": [
+      {
+        "url": "/images/test-3.jpg",
+        "alt": "テスト画像3"
+      }
+    ],
+    "links": [
+      {
+        "url": "https://example.com/ref-3",
+        "text": "参考リンク3"
+      }
+    ]
+  }
+]

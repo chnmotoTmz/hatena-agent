@@ -2,7 +2,40 @@
 
 はてなブログの記事管理・自動強化システム
 
-## 機能
+## 新機能（v2.1）
+
+### 🔗 リンク不正確チェック機能
+- 既存リンクの有効性を自動検証
+- リンク切れの自動検出・修正提案
+- HTTPステータスチェック・リダイレクト対応
+- 詳細なリンクレポート生成
+
+### 🤖 アフィリエイト自動挿入機能（強化版）
+- 記事内容から関連商品の自動検出
+- 適切なアフィリエイトリンクの自動挿入
+- Amazon・楽天等の主要ASP対応
+- 商品情報の自動取得・整形
+- パフォーマンス分析機能
+
+### 🔄 参照記事機能強化
+- 過去記事の関連性自動検出
+- 自動クロスリファレンス生成
+- 記事間の類似度計算
+- 関連記事リンク自動挿入
+
+### ✍️ 文言の個人化
+- ユーザー固有の文体・トーン学習・適用
+- パーソナライズされたコンテンツ生成
+- 口調・表現パターンの一貫性確保
+- 個性的な文章スタイルの維持
+
+### 🕸️ ナレッジネットワーク化
+- 記事間の連関性可視化システム
+- Google NotebookLM連携でのデータベース化
+- 知識グラフ構築・管理
+- トピック間の関係性分析
+
+## 既存機能
 
 1. **自己記事抽出エージェント**
    - はてなブログから全記事を自動抽出
@@ -73,6 +106,11 @@ python main.py --hatena-id your-hatena-id --mode enhance
 
 # リポスト計画の作成のみ
 python main.py --hatena-id your-hatena-id --mode repost
+
+# 新機能の個別実行
+python main.py --hatena-id your-hatena-id --mode linkcheck    # リンクチェック
+python main.py --hatena-id your-hatena-id --mode personalize  # 個人化分析
+python main.py --hatena-id your-hatena-id --mode network      # 知識ネットワーク構築
 ```
 
 ### 個別エージェントの使用
@@ -98,11 +136,22 @@ enhanced_content = retrieval_agent.generate_article_with_links(
 
 ## 出力ファイル
 
+### 基本出力
 - `output/extracted_articles.json` - 抽出した記事データ
 - `output/enhanced_sample.html` - 強化されたサンプル記事
 - `output/repost_calendar.json` - リポストスケジュール
 - `output/images/` - 生成された画像
 - `output/chroma_db/` - ベクトルデータベース
+
+### 新機能出力
+- `output/link_check_report.md` - リンクチェック結果レポート
+- `output/user_profile.json` - 個人化設定プロファイル
+- `output/personalized_sample.html` - 個人化されたサンプル記事
+- `output/knowledge_network/` - 知識ネットワークデータ
+  - `knowledge_map.png` - 知識マップ可視化
+  - `knowledge_graph.graphml` - グラフデータ（GraphML形式）
+  - `notebook_lm_export.json` - NotebookLM用エクスポート
+- `output/knowledge_network_report.md` - 知識ネットワーク分析レポート
 
 ## 注意事項
 

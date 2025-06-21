@@ -134,20 +134,26 @@ class AffiliateManager:
         return relevant_products[:5]
     
     def _extract_keywords(self, text: str) -> List[str]:
-        import MeCab
-        
-        mecab = MeCab.Tagger()
-        node = mecab.parseToNode(text)
-        
-        keywords = []
-        while node:
-            features = node.feature.split(',')
-            if features[0] in ['名詞'] and features[1] not in ['非自立', '代名詞', '数']:
-                if len(node.surface) > 1:
-                    keywords.append(node.surface)
-            node = node.next
-        
-        return list(set(keywords))
+        try:
+            import MeCab
+            
+            mecab = MeCab.Tagger()
+            node = mecab.parseToNode(text)
+            
+            keywords = []
+            while node:
+                features = node.feature.split(',')
+                if features[0] in ['名詞'] and features[1] not in ['非自立', '代名詞', '数']:
+                    if len(node.surface) > 1:
+                        keywords.append(node.surface)
+                node = node.next
+            
+            return list(set(keywords))
+        except ImportError:
+            # MeCabが利用できない場合は簡易的なキーワード抽出
+            import re
+            words = re.findall(r'[ァ-ヴー]+|[ぁ-ん]+|[A-Za-z]+', text)
+            return [word for word in words if len(word) > 2]
     
     def generate_affiliate_report(self, processed_urls: List[Dict]) -> str:
         report = "## アフィリエイトリンク処理レポート\n\n"
@@ -168,3 +174,123 @@ class AffiliateManager:
             report += f"   - 変更後: {url_info['modified']}\n\n"
         
         return report
+    
+    def auto_detect_and_insert_affiliate_products(self, content: str) -> str:
+        """記事内容から関連商品を自動検出してアフィリエイトリンクを挿入"""
+        keywords = self._extract_keywords(content)
+        
+        # 商品データベース（実際の実装では外部APIや設定ファイルから取得）
+        products_db = {
+            'amazon': [
+                {
+                    'name': 'プログラミング入門書',
+                    'url': 'https://www.amazon.co.jp/dp/example',
+                    'keywords': ['プログラミング', 'Python', 'JavaScript', '入門', '初心者'],
+                    'price': '¥2,500',
+                    'category': '書籍'
+                },
+                {
+                    'name': 'ワイヤレスマウス',
+                    'url': 'https://www.amazon.co.jp/dp/example2', 
+                    'keywords': ['マウス', 'PC', 'パソコン', 'ワイヤレス'],
+                    'price': '¥3,000',
+                    'category': 'PC周辺機器'
+                }
+            ],
+            'rakuten': [
+                {
+                    'name': 'コーヒーメーカー',
+                    'url': 'https://item.rakuten.co.jp/example',
+                    'keywords': ['コーヒー', 'カフェ', 'ドリップ', 'メーカー'],
+                    'price': '¥15,000',
+                    'category': 'キッチン家電'
+                }
+            ]
+        }
+        
+        matched_products = []
+        
+        # キーワードマッチングで商品を検出
+        for service, products in products_db.items():
+            for product in products:
+                product_score = 0
+                for keyword in keywords:
+                    if keyword in product['keywords']:
+                        product_score += 1
+                
+                if product_score >= 2:  # 2つ以上のキーワードが一致
+                    matched_products.append({
+                        'product': product,
+                        'service': service,
+                        'score': product_score
+                    })
+        
+        # スコア順にソート
+        matched_products.sort(key=lambda x: x['score'], reverse=True)
+        
+        # 上位3商品をコンテンツに挿入
+        enhanced_content = content
+        for match in matched_products[:3]:
+            product = match['product']
+            affiliate_url = self.add_affiliate_tag(product['url'])
+            
+            product_html = f'''
+<div class="recommended-product">
+    <h4>おすすめ商品</h4>
+    <p><strong>{product['name']}</strong></p>
+    <p>価格: {product['price']}</p>
+    <p><a href="{affiliate_url}" target="_blank" rel="noopener">詳細を見る</a></p>
+</div>
+'''
+            
+            # 適切な位置に挿入（段落の間）
+            paragraphs = enhanced_content.split('\n\n')
+            if len(paragraphs) > 2:
+                insert_pos = len(paragraphs) // 2
+                paragraphs.insert(insert_pos, product_html)
+                enhanced_content = '\n\n'.join(paragraphs)
+            else:
+                enhanced_content += product_html
+        
+        return enhanced_content
+    
+    def analyze_affiliate_performance(self, articles: List[Dict]) -> Dict:
+        """アフィリエイトリンクのパフォーマンス分析"""
+        performance_data = {
+            'total_articles': len(articles),
+            'articles_with_affiliate': 0,
+            'service_distribution': {},
+            'category_performance': {},
+            'recommendations': []
+        }
+        
+        for article in articles:
+            content = article.get('full_content', '') or article.get('content', '')
+            if not content:
+                continue
+            
+            # アフィリエイトリンクの検出
+            _, processed_urls = self.process_article_content(content, auto_detect=True)
+            
+            if processed_urls:
+                performance_data['articles_with_affiliate'] += 1
+                
+                for url_info in processed_urls:
+                    service = url_info['service']
+                    performance_data['service_distribution'][service] = \
+                        performance_data['service_distribution'].get(service, 0) + 1
+        
+        # 推奨事項の生成
+        coverage_rate = performance_data['articles_with_affiliate'] / performance_data['total_articles']
+        
+        if coverage_rate < 0.3:
+            performance_data['recommendations'].append(
+                "アフィリエイトリンクの導入率が低いです。より多くの記事に関連商品を追加することを検討してください。"
+            )
+        
+        if 'rakuten' not in performance_data['service_distribution']:
+            performance_data['recommendations'].append(
+                "楽天アフィリエイトの活用を検討してください。幅広い商品カテゴリをカバーできます。"
+            )
+        
+        return performance_data

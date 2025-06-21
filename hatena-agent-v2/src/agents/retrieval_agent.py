@@ -1,4 +1,5 @@
 import os
+import re
 from typing import List, Dict, Optional, Tuple
 from langchain.embeddings import OpenAIEmbeddings
 from langchain.vectorstores import Chroma
@@ -9,6 +10,9 @@ from langchain.chains import RetrievalQA
 from langchain.prompts import PromptTemplate
 import chromadb
 from chromadb.config import Settings
+import requests
+from bs4 import BeautifulSoup
+from datetime import datetime
 
 
 class RetrievalAgent:
@@ -157,3 +161,84 @@ class RetrievalAgent:
         
         response = self.llm.predict(prompt)
         return response
+    
+    def auto_detect_similar_articles(self, content: str, threshold: float = 0.8) -> List[Dict]:
+        """記事の類似度を自動検出して関連記事を見つける"""
+        if not self.vectorstore:
+            raise ValueError("Vectorstore not initialized. Create or load it first.")
+        
+        results = self.vectorstore.similarity_search_with_score(content, k=10)
+        
+        similar_articles = []
+        for doc, score in results:
+            if score < threshold:  # スコアが低いほど類似度が高い
+                similar_articles.append({
+                    'title': doc.metadata.get('title', ''),
+                    'url': doc.metadata.get('url', ''),
+                    'similarity_score': score,
+                    'snippet': doc.page_content[:200] + '...',
+                    'categories': doc.metadata.get('categories', ''),
+                    'date': doc.metadata.get('date', '')
+                })
+        
+        return similar_articles
+    
+    def generate_cross_references(self, articles: List[Dict]) -> Dict:
+        """記事間のクロスリファレンスを自動生成"""
+        cross_refs = {}
+        
+        for i, article in enumerate(articles):
+            content = article.get('full_content', '') or article.get('summary', '')
+            if not content:
+                continue
+                
+            similar = self.auto_detect_similar_articles(content)
+            
+            # 自分自身を除外
+            similar = [s for s in similar if s['url'] != article.get('url')]
+            
+            cross_refs[article.get('url', f'article_{i}')] = {
+                'title': article.get('title', ''),
+                'related_articles': similar[:5],  # 上位5件
+                'categories': article.get('categories', []),
+                'generated_at': datetime.now().isoformat()
+            }
+        
+        return cross_refs
+    
+    def enhance_content_with_internal_links(self, content: str, max_links: int = 3) -> str:
+        """コンテンツに内部リンクを自動挿入"""
+        if not self.vectorstore:
+            return content
+        
+        # 関連記事を検索
+        related_articles = self.auto_detect_similar_articles(content, threshold=0.7)[:max_links]
+        
+        if not related_articles:
+            return content
+        
+        # コンテンツを解析してリンク挿入ポイントを特定
+        sentences = re.split(r'[。！？]', content)
+        enhanced_content = content
+        
+        # 各関連記事について適切な挿入ポイントを探す
+        for article in related_articles:
+            title_words = article['title'].split()
+            
+            # タイトルのキーワードが含まれる文を探す
+            for sentence in sentences:
+                for word in title_words:
+                    if word in sentence and len(word) > 2:  # 短すぎる単語は除外
+                        # リンクを挿入
+                        link_text = f"[{article['title']}]({article['url']})"
+                        enhanced_content = enhanced_content.replace(
+                            sentence, 
+                            sentence + f"\n\n関連記事: {link_text}",
+                            1  # 最初の1件のみ
+                        )
+                        break
+                else:
+                    continue
+                break
+        
+        return enhanced_content

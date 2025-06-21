@@ -7,6 +7,9 @@ from src.agents.retrieval_agent import RetrievalAgent
 from src.agents.image_generator import ImageGenerator
 from src.agents.affiliate_manager import AffiliateManager
 from src.agents.repost_manager import RepostManager
+from src.agents.link_checker import LinkChecker
+from src.agents.personalization_agent import PersonalizationAgent
+from src.agents.knowledge_network import KnowledgeNetworkManager
 
 
 def main():
@@ -14,7 +17,7 @@ def main():
     
     parser = argparse.ArgumentParser(description='HATENA Agent - Blog Content Management System')
     parser.add_argument('--hatena-id', help='Your Hatena Blog ID (or set HATENA_BLOG_ID env var)')
-    parser.add_argument('--mode', choices=['extract', 'enhance', 'repost', 'full'], 
+    parser.add_argument('--mode', choices=['extract', 'enhance', 'repost', 'full', 'linkcheck', 'personalize', 'network'], 
                        default='full', help='Operation mode')
     parser.add_argument('--output-dir', default='./output', help='Output directory')
     
@@ -158,6 +161,90 @@ def main():
             
             print("Sample repost saved to sample_repost.html")
     
+    # 新機能の処理
+    if args.mode in ['linkcheck', 'full']:
+        print("\n=== Link Checking ===")
+        link_checker = LinkChecker()
+        
+        if args.mode == 'linkcheck':
+            extractor = HatenaArticleExtractor(hatena_id, blog_domain)
+            articles = extractor.load_articles_from_json(
+                os.path.join(args.output_dir, 'extracted_articles.json')
+            )
+        
+        if articles:
+            print("Checking links in articles...")
+            link_results = []
+            for article in articles[:5]:  # 最初の5記事をテスト
+                result = link_checker.check_article_links(article)
+                link_results.append(result)
+                print(f"Checked: {article.get('title', 'Unknown')}")
+            
+            # レポート生成
+            report = link_checker.generate_link_report(
+                link_results, 
+                os.path.join(args.output_dir, 'link_check_report.md')
+            )
+            print("Link check report saved to link_check_report.md")
+    
+    if args.mode in ['personalize', 'full']:
+        print("\n=== Personalization ===")
+        personalizer = PersonalizationAgent(
+            os.path.join(args.output_dir, 'user_profile.json')
+        )
+        
+        if args.mode == 'personalize':
+            extractor = HatenaArticleExtractor(hatena_id, blog_domain)
+            articles = extractor.load_articles_from_json(
+                os.path.join(args.output_dir, 'extracted_articles.json')
+            )
+        
+        if articles:
+            print("Analyzing writing style...")
+            personalizer.analyze_writing_samples(articles)
+            
+            # サンプル記事を個人化
+            if articles[0].get('full_content'):
+                personalized_content = personalizer.personalize_content(
+                    articles[0]['full_content']
+                )
+                
+                with open(os.path.join(args.output_dir, 'personalized_sample.html'), 'w', encoding='utf-8') as f:
+                    f.write(f"<h1>{articles[0]['title']}</h1>\n")
+                    f.write(personalized_content)
+                
+                print("Personalized sample saved to personalized_sample.html")
+    
+    if args.mode in ['network', 'full']:
+        print("\n=== Knowledge Network ===")
+        knowledge_manager = KnowledgeNetworkManager(
+            os.path.join(args.output_dir, 'knowledge_network')
+        )
+        
+        if args.mode == 'network':
+            extractor = HatenaArticleExtractor(hatena_id, blog_domain)
+            articles = extractor.load_articles_from_json(
+                os.path.join(args.output_dir, 'extracted_articles.json')
+            )
+        
+        if articles:
+            print("Building knowledge graph...")
+            network_stats = knowledge_manager.build_knowledge_graph(articles)
+            
+            # 可視化の生成
+            map_file = knowledge_manager.generate_knowledge_map_visualization()
+            print(f"Knowledge map saved to: {map_file}")
+            
+            # NotebookLM用エクスポート
+            export_file = knowledge_manager.export_for_notebook_lm()
+            print(f"NotebookLM export saved to: {export_file}")
+            
+            # レポート生成
+            report = knowledge_manager.generate_knowledge_report()
+            with open(os.path.join(args.output_dir, 'knowledge_network_report.md'), 'w', encoding='utf-8') as f:
+                f.write(report)
+            print("Knowledge network report saved to knowledge_network_report.md")
+
     print("\nAll operations completed successfully!")
     print(f"Output files are in: {args.output_dir}")
 

@@ -47,9 +47,33 @@ class HatenaArticleExtractor:
         soup = BeautifulSoup(response.content, 'html.parser')
         articles = []
         
-        for article_elem in soup.find_all('article', class_='archive-entry'):
-            article_data = self._parse_article_element(article_elem)
-            if article_data:
+        # Look for the archive-entries container
+        entries_container = soup.find('div', class_='archive-entries')
+        if not entries_container:
+            print(f"No archive-entries container found on page {page}")
+            return []
+        
+        # Find all article links within the container
+        article_links = entries_container.find_all('a', href=lambda x: x and '/entry/' in x)
+        processed_urls = set()  # To avoid duplicates
+        
+        for link in article_links:
+            href = link.get('href')
+            title = link.get_text(strip=True)
+            
+            if href and title and href not in processed_urls:
+                processed_urls.add(href)
+                # Make URL absolute if it's relative
+                if href.startswith('/'):
+                    href = f"{self.base_url}{href}"
+                
+                article_data = {
+                    'title': title,
+                    'url': href,
+                    'date': None,  # Will be extracted from individual page
+                    'categories': [],  # Will be extracted from individual page
+                    'summary': ''  # Will be extracted from individual page
+                }
                 articles.append(article_data)
         
         return articles

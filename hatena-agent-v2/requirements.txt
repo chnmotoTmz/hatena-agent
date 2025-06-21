@@ -10,3 +10,7 @@ aiohttp==3.9.3
 pytest==8.0.0
 pytest-asyncio==0.23.3
 bingart
+networkx>=2.8
+scikit-learn>=1.0.0
+matplotlib>=3.5.0
+numpy>=1.21.0

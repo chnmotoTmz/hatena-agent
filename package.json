@@ -1,0 +1,44 @@
+{
+  "name": "hatena-agent",
+  "version": "1.0.0",
+  "description": "Hatena Blog MCP Server - Multi-blog management and article migration",
+  "type": "module",
+  "main": "src/index.js",
+  "bin": {
+    "hatena-agent": "src/index.js"
+  },
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "node --inspect src/index.js",
+    "test": "python simple_test.py"
+  },
+  "keywords": [
+    "hatena",
+    "blog",
+    "mcp",
+    "server",
+    "multi-blog",
+    "migration"
+  ],
+  "author": "Chanmoto",
+  "license": "MIT",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^0.5.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/chnmotoTmz/hatena-agent.git"
+  },
+  "mcp": {
+    "description": "Hatena Blog multi-blog management server",
+    "tools": [
+      "test_blog_connections",
+      "search_articles", 
+      "migrate_article",
+      "list_articles"
+    ]
+  }
+}
